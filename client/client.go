@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"grpc_hello_world/chat"
 	"log"
 	"math/rand"
@@ -28,14 +27,14 @@ func generateMessage (lenOfMessage int, messageCount int) (message *chat.Message
 	message = &chat.Message{
 		Body: RandStringBytes(lenOfMessage),
 		MessageNumber: int64(messageCount),
-		Timestamps: time.Now().Unix(),
+		Timestamps: time.Now().UnixMilli(),
 	}
 	return message
 }
 
 func calculateLatency (sendTime int64) (int64){
 		
-		return time.Now().Unix()-sendTime
+		return time.Now().UnixMilli()-sendTime
 }
 
 func callSayHello(conn *grpc.ClientConn, messageCount int, wg *sync.WaitGroup, sem chan int){
@@ -47,7 +46,6 @@ func callSayHello(conn *grpc.ClientConn, messageCount int, wg *sync.WaitGroup, s
 	}
 
 	log.Printf("Response From Server: %v -- Roundtrip time: %d", response, calculateLatency(response.Timestamps))
-	fmt.Println(sem)
 	<-sem
 }
 
@@ -55,7 +53,7 @@ func main() {
 	var conn *grpc.ClientConn
 	var wg sync.WaitGroup
 	var interationCount int
-	const MAX = 2000
+	const MAX = 20000
 	conn, err := grpc.Dial(":9000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("could not connect: %s", err)
